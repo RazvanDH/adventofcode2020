@@ -1,34 +1,30 @@
-// should be done recursively but ain't nobody got time for that
-
 const fs = require('fs')
 const input = fs.readFileSync('./input.txt', {encoding:'utf8', flag:'r'}).split('\n').map(n => +n)
 
-let result
 const SUM = 2020
 const INPUT_LENGTH = input.length
-const FIRST_PASS_LENGTH = INPUT_LENGTH - 3
-const SECOND_PASS_LENGTH = INPUT_LENGTH - 2
-const THIRD_PASS_LENGTH = INPUT_LENGTH - 1
 
-for (let i = 0; i < FIRST_PASS_LENGTH ; i++) {
-  if (result) { break }
+const findSum = (depth, terms = [], index = 0) => {
+  let result
 
-  if (input[i] < SUM) {
-    for (let j = i + 1; j < SECOND_PASS_LENGTH; j++) {
-      if (result) { break }
-
-      const diff = SUM - input[i] - input[j]
-
-      if (diff < SUM) {
-        for (let k = i + 2; k < THIRD_PASS_LENGTH; k++) {
-          if (input[k] === diff) {
-            result = input[i] * input[j] * input[k]
-            break
-          }
-        }
+  for (let i = index; i <= (INPUT_LENGTH - depth - 1); i++) {
+    if (depth === 1) {
+      const tempSum = terms.reduce((accumulator, term) => accumulator + term, input[i])
+      if (tempSum === SUM) {
+        result = [...terms, input[i]]
       }
+    } else {
+      result = findSum(depth - 1, [...terms, input[i]], i + 1)
+    }
+
+    if (result) {
+      break
     }
   }
+
+  return result
 }
 
-console.log(result)
+const multiplyNumbers = (arr) => arr.reduce((multiplier, number) => multiplier * number, 1)
+
+console.log(multiplyNumbers(findSum(3)))
